@@ -1,0 +1,169 @@
+%!Adobe-FontList 1.22
+%Locale:0x804
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:MicrosoftYaHei
+FamilyName:Microsoft YaHei
+StyleName:Regular
+FullName:Microsoft YaHei
+MenuName:微软雅黑
+StyleBits:0
+FamilyNameNative:微软雅黑
+StyleNameNative:Regular
+FullNameNative:微软雅黑
+WritingScript:SimplifiedChinese
+OutlineFileName:D:\WorkSpace\CFunWorld\h. 事务\表格处理\Font\msyh.ttc
+TTCOffset:32
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:19701556
+FileModTime:1689122188
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Win,1,Microsoft YaHei
+NameArray:25,Win,1,微软雅黑
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:MicrosoftYaHei-Bold
+FamilyName:Microsoft YaHei
+StyleName:Bold
+FullName:Microsoft YaHei Bold
+MenuName:微软雅黑
+StyleBits:2
+FamilyNameNative:微软雅黑
+StyleNameNative:Bold
+FullNameNative:微软雅黑 Bold
+WritingScript:SimplifiedChinese
+OutlineFileName:D:\WorkSpace\CFunWorld\h. 事务\表格处理\Font\msyhbd.ttc
+TTCOffset:32
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:16880832
+FileModTime:1689122206
+WeightClass:700
+WidthClass:5
+AngleClass:0
+NameArray:0,Win,1,Microsoft YaHei
+NameArray:25,Win,1,微软雅黑
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:MicrosoftYaHeiLight
+FamilyName:Microsoft YaHei
+StyleName:Light
+FullName:Microsoft YaHei Light
+MenuName:微软雅黑 Light
+StyleBits:0
+FamilyNameNative:微软雅黑
+StyleNameNative:Light
+FullNameNative:微软雅黑 Light
+WritingScript:SimplifiedChinese
+OutlineFileName:D:\WorkSpace\CFunWorld\h. 事务\表格处理\Font\msyhl.ttc
+TTCOffset:32
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:12183612
+FileModTime:1689122206
+WeightClass:290
+WidthClass:5
+AngleClass:0
+NameArray:0,Win,1,Microsoft YaHei Light
+NameArray:0,Win,16,Microsoft YaHei
+NameArray:25,Win,1,微软雅黑 Light
+NameArray:25,Win,16,微软雅黑
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:MicrosoftYaHeiUI
+FamilyName:Microsoft YaHei UI
+StyleName:Regular
+FullName:Microsoft YaHei UI
+MenuName:Microsoft YaHei UI
+StyleBits:0
+FamilyNameNative:Microsoft YaHei UI
+StyleNameNative:Regular
+FullNameNative:Microsoft YaHei UI Regular
+WritingScript:SimplifiedChinese
+OutlineFileName:D:\WorkSpace\CFunWorld\h. 事务\表格处理\Font\msyh.ttc
+TTCOffset:444
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:19701556
+FileModTime:1689122188
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Win,1,Microsoft YaHei UI
+NameArray:25,Win,1,Microsoft YaHei UI
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:MicrosoftYaHeiUI-Bold
+FamilyName:Microsoft YaHei UI
+StyleName:Bold
+FullName:Microsoft YaHei UI Bold
+MenuName:Microsoft YaHei UI
+StyleBits:2
+FamilyNameNative:Microsoft YaHei UI
+StyleNameNative:Bold
+FullNameNative:Microsoft YaHei UI Bold
+WritingScript:SimplifiedChinese
+OutlineFileName:D:\WorkSpace\CFunWorld\h. 事务\表格处理\Font\msyhbd.ttc
+TTCOffset:444
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:16880832
+FileModTime:1689122206
+WeightClass:700
+WidthClass:5
+AngleClass:0
+NameArray:0,Win,1,Microsoft YaHei UI
+NameArray:25,Win,1,Microsoft YaHei UI
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:MicrosoftYaHeiUILight
+FamilyName:Microsoft YaHei UI
+StyleName:Light
+FullName:Microsoft YaHei UI Light
+MenuName:Microsoft YaHei UI Light
+StyleBits:0
+FamilyNameNative:Microsoft YaHei UI
+StyleNameNative:Light
+FullNameNative:Microsoft YaHei UI Light
+WritingScript:SimplifiedChinese
+OutlineFileName:D:\WorkSpace\CFunWorld\h. 事务\表格处理\Font\msyhl.ttc
+TTCOffset:444
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:12183612
+FileModTime:1689122206
+WeightClass:290
+WidthClass:5
+AngleClass:0
+NameArray:0,Win,1,Microsoft YaHei UI Light
+NameArray:0,Win,16,Microsoft YaHei UI
+NameArray:25,Win,1,Microsoft YaHei UI Light
+NameArray:25,Win,16,Microsoft YaHei UI
+%EndFont
+

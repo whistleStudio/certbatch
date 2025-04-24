@@ -2,7 +2,6 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import fontUrl from "../../resources/font/msyhl.ttc?asset"
 
 const gm = require('gm').subClass({ imageMagick: '7+' });
 const Excel = require('exceljs');
@@ -11,7 +10,7 @@ const fs = require('fs');
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
+    width: 1300,
     height: 670,
     show: false,
     autoHideMenuBar: true,
@@ -38,6 +37,7 @@ function createWindow() {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
 }
 
 // This method will be called when Electron has finished
@@ -47,6 +47,7 @@ app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
+  console.log("你好")
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
   // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
@@ -57,37 +58,85 @@ app.whenReady().then(() => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
+  /* 批量处理 */
   let invTim
-  ipcMain.handle("r:batch", (ev, payload) => {
-    console.log("ssss", decodeURI(payload, "utf-8"))
-    payload = JSON.parse(decodeURI(payload, "utf-8"))
+  let isWork = true
+  ipcMain.handle("r:batch", async(ev, payload) => {
+    payload = JSON.parse(payload)
     console.log(payload)
-    
     const workbook = new Excel.Workbook()
-    ;(async() => {
-      try {
-        await workbook.xlsx.readFile(payload.excelUrl)
-        invTim = new Date()
-        solveSheet(payload)
-      } catch(e) {console.log(e)}
-    })()
-    return 0
+    try {
+      await workbook.xlsx.readFile(payload.excelUrl)
+      invTim = new Date()
+      return solveSheet(workbook, payload)
+    } catch(e) {console.log(e); return}
   })
 
-  /* 表单处理 */
-  function solveSheet (payload) {
-    const {imgUrl, excelUrl, worksheetName, outUrl, row1, row2, subList} = payload
+  /* 暂停批处理 */
+  ipcMain.handle("r:stop", () => {
+    isWork = false
+    return 0
+  })
+  
+  /* 导入配置 */
+  ipcMain.handle("r:cfgOpen", async (ev, cfgOpenUrl) => {
+    try {
+      return fs.readFileSync(cfgOpenUrl, 'utf-8')
+    } catch(e) {console.log(e); return}
+  })
+
+
+  /* 保存配置 */
+  ipcMain.handle("r:cfgSave", async (ev, payload) => {
+    let {cfg, cfgSaveUrl} = JSON.parse(payload)
+    try {
+      fs.writeFileSync(cfgSaveUrl, cfg)
+      return 0
+    } catch(e) {console.log(e); return -1}
+  })
+
+
+
+  /* 批量处理：提取表单，生成图片 */
+  function solveSheet (workbook, payload) {
+    console.log(solveSheet)
+    const {imgUrl, excelUrl, fontUrl, worksheetName, outUrl, row1, row2, subList} = payload
     const worksheet = workbook.getWorksheet(worksheetName)
     if (!worksheet) {console.log("no sheet");return}
     // 遍历每一行
+    let picCount = 0
     for (let i = row1; i <= row2; i++) {
-      const perRow = worksheet.getRow(i)
-      console.log(perRow)
-      // perRow.eachCell((cell, colNumber) => {
-      //   rowData[`Column ${colNumber}`] = cell.value;
-      // });
+      console.log(isWork)
+      if (isWork) {
+        console.log(i)
+        const perRow = worksheet.getRow(i)
+        const perRowVal = perRow.values
+        const onePic = gm(imgUrl)
+        let outFileName = ""
+        for (let v of subList) {
+          if (v.checked) {
+            v.x = parseInt(v.x); v.y = parseInt(v.y); v.fz = parseInt(v.fz); v.smfz = parseInt(v.smfz); v.flimit = parseInt(v.flimit)
+            let colIdx = v.col.trim().toUpperCase().charCodeAt(0)-64
+            console.log(perRowVal[colIdx])
+            let addText = perRowVal[colIdx]+"", curFz = addText.length<=v.flimit ? v.fz: v.smfz
+            onePic.stroke(v.color).fill(v.color).font(fontUrl, curFz)
+            .drawText(v.x-curFz*addText.length/2, v.y+curFz/2, addText)
+            if (v.fnamechecked) {
+              if (outFileName) outFileName+=`_${addText}`
+              else outFileName+=addText
+            }
+          }
+        }
+        if (outFileName) {
+          onePic.write(`${outUrl}/${outFileName}.jpg`, function(err) {if(err)console.log(err)})
+          picCount ++
+        } else throw "输出文件名为空"
+      } else continue
     }
-    console.log(`${groups[sheetIdx]} done. used ${(new Date() - invTim)/1000} s`)
+    const usedT = (new Date() - invTim)/1000
+    console.log(`表单${worksheetName}处理完成, 共生成${picCount}张图片, 用时${usedT}s`)
+    isWork = true
+    return [worksheetName, picCount, usedT]
   }
 
 

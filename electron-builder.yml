@@ -12,8 +12,9 @@ asarUnpack:
   - resources/**
 win:
   executableName: certbatch
+  icon: build/icon.ico
 nsis:
-  artifactName: ${name}-${version}-setup.${ext}
+  artifactName: ${name}-${version}.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always

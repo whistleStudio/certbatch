@@ -4,7 +4,10 @@
 <template>
   <a-alert class="alert" :message="alertInfo.msg" :type="alertInfo.tp" show-icon v-if="alertInfo.isShow"/>
 
-  <span>图片路径： </span><a-input class="ip-url" v-model:value="ipImgUrl" placeholder="填写图片路径(~/tupian.png)" />
+  <span>图片路径： </span>
+  <a-input class="ip-url" v-model:value="ipImgUrl" placeholder="填写图片路径(~/tupian.png)">
+    <template #suffix><span class="sp-file-open" @click="spOpenFileClick('img')">🗁</span></template>
+  </a-input>
   <span>表格路径： </span><a-input class="ip-url" v-model:value="ipExcelUrl" placeholder="填写表格路径(~/biaoge.xlsx)" />
   <span>字体路径： </span><a-input class="ip-url" v-model:value="ipFontUrl" placeholder="填写字体路径(~/msyhl.ttc)" />
 
@@ -69,6 +72,11 @@ const alertInfo = reactive({
   tp: "info", //success info warning error
 })
 
+/* 🗁打开文件夹 */
+async function spOpenFileClick(params) {
+  
+}
+
 async function btnBatchClick () {
   switch (solveSta.value) {
     case 0:
@@ -93,8 +101,8 @@ async function btnBatchClick () {
       changeAlertInfo("已暂停", "info")
       break
   }
-
 }
+
 
 /* 消息提示 */
 let timer_alert = 0

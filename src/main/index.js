@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -57,6 +57,30 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+
+  ipcMain.handle("r:openFile", async (_, params) => {
+    const opt = {
+      img: { name: '图片', extensions: ['jpg', 'jpeg', 'png'] }, 
+      excel: { name: '表格', extensions: ['xlsx', 'xlsm'] },
+      font: { name: '字体', extensions: ['ttf', 'otf', 'ttc'] },
+      cfgopen: { name: '配置文件', extensions: ['json'] },
+      cfgsave: { name: '配置文件', extensions: ['json'] },
+    }
+    const options = params === "out" ? {
+      title: "选择输出目录",
+      properties: ["openDirectory"],
+      filters: [
+      { name: '输出目录', extensions: ['*'] }
+      ]
+    } : {
+      title: "选择文件",
+      properties: ["openFile"],
+      filters: [opt[params], { name: 'All Files', extensions: ['*'] }]
+    }
+    const result = await dialog.showOpenDialog(options)
+    if (result.canceled) return null
+    return result.filePaths
+  })
 
   /* 批量处理 */
   let invTim

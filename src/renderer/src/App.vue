@@ -8,9 +8,14 @@
   <a-input class="ip-url" v-model:value="ipImgUrl" placeholder="填写图片路径(~/tupian.png)">
     <template #suffix><span class="sp-file-open" @click="spOpenFileClick('img')">🗁</span></template>
   </a-input>
-  <span>表格路径： </span><a-input class="ip-url" v-model:value="ipExcelUrl" placeholder="填写表格路径(~/biaoge.xlsx)" />
-  <span>字体路径： </span><a-input class="ip-url" v-model:value="ipFontUrl" placeholder="填写字体路径(~/msyhl.ttc)" />
-
+  <span>表格路径： </span>
+  <a-input class="ip-url" v-model:value="ipExcelUrl" placeholder="填写表格路径(~/biaoge.xlsx)">
+    <template #suffix><span class="sp-file-open" @click="spOpenFileClick('excel')">🗁</span></template>
+  </a-input>  
+  <span>字体路径： </span>
+  <a-input class="ip-url" v-model:value="ipFontUrl" placeholder="填写字体路径(~/msyhl.ttc)">
+    <template #suffix><span class="sp-file-open" @click="spOpenFileClick('font')">🗁</span></template>
+  </a-input>
   <div class="div-sub-head">
     表单：<a-input class="ip-url" v-model:value="worksheetName" placeholder="填写表单名称" />
     从第<a-input class="ip-mid" v-model:value="row1" />行
@@ -19,7 +24,7 @@
 
   <ul class="ul-sub">
     <li v-for="(v, i) in subList">
-      ⭐<a-checkbox v-model:checked="v.checked">&nbsp;&nbsp;</a-checkbox>
+      ⭐<a-checkbox v-model:checked="v.checked" style="margin-right: 10px;"></a-checkbox>
       第<a-input class="ip-short" v-model:value="v.col" :disabled="!v.checked"
       />列数据重绘至图像x:<a-input class="ip-mid" v-model:value="v.x" :disabled="!v.checked"/>,&nbsp; 
       y:<a-input class="ip-mid" v-model:value="v.y" :disabled="!v.checked"/>,&nbsp;
@@ -32,7 +37,10 @@
   </ul>
 
   <div>
-    输出文件夹路径: <a-input class="ip-url" v-model:value="outUrl" placeholder="填写输出路径" />
+    输出文件夹路径: 
+    <a-input class="ip-url" v-model:value="outUrl" placeholder="填写输出路径">
+      <template #suffix><span class="sp-file-open" @click="spOpenFileClick('out')">🗁</span></template>
+    </a-input>
   </div>
 
   <a-button class="btn-batch" type="primary" @click="btnBatchClick" :loading="solveSta==1">批量处理</a-button>
@@ -40,9 +48,13 @@
   <hr>
   <div style="margin-top: 20px;">
     <a-button class="btn-cfg" type="primary" @click="btnCfgOpenClick" :loading="solveSta==1">导入配置</a-button>
-    <a-input class="ip-url" v-model:value="ipCfgOpenUrl" placeholder="填写导入路径(~/cfg1.json)" />&nbsp;&nbsp;
+    <a-input  class="ip-url" v-model:value="ipCfgOpenUrl" placeholder="填写导入路径(~/cfg1.json)">
+      <template #suffix><span class="sp-file-open" @click="spOpenFileClick('cfgopen')">🗁</span></template>
+    </a-input>&nbsp;&nbsp;
     <a-button class="btn-cfg" type="primary" @click="btnCfgSaveClick" :loading="solveSta==1">保存配置</a-button>
-    <a-input class="ip-url" v-model:value="ipCfgSaveUrl" placeholder="填写保存路径(~/cfg2.json)" />
+    <a-input class="ip-url" v-model:value="ipCfgSaveUrl" placeholder="填写保存路径(~/cfg2.json)">
+      <template #suffix><span class="sp-file-open" @click="spOpenFileClick('cfgsave')">🗁</span></template>
+    </a-input>
   </div>
 </template>
 
@@ -73,8 +85,32 @@ const alertInfo = reactive({
 })
 
 /* 🗁打开文件夹 */
-async function spOpenFileClick(params) {
-  
+function spOpenFileClick(params) {
+  window.electron.ipcRenderer.invoke('r:openFile', params)
+  .then((res) => {
+    if (res) {
+      switch (params) {
+        case "img":
+          ipImgUrl.value = res
+          break
+        case "excel":
+          ipExcelUrl.value = res
+          break
+        case "font":
+          ipFontUrl.value = res
+          break
+        case "out":
+          outUrl.value = res
+          break
+        case "cfgopen":
+          ipCfgOpenUrl.value = res
+          break
+        case "cfgsave":
+          ipCfgSaveUrl.value = res
+          break
+      }
+    }
+  })
 }
 
 async function btnBatchClick () {
@@ -102,7 +138,6 @@ async function btnBatchClick () {
       break
   }
 }
-
 
 /* 消息提示 */
 let timer_alert = 0
@@ -174,10 +209,17 @@ function solveUrl (url) {return url.replace(/\"/g, "").replace(/\\/g, "\/").trim
   &:nth-of-type(3) {
     margin-right: 0;
   }
+  .sp-file-open {
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .ip-file {
+    display: none;
+  }
 }
 
-.ip-short {width: 40px;}
-.ip-mid {width: 60px;}
+.ip-short {width: 40px; margin: 0 3px;}
+.ip-mid {width: 60px;margin: 0 3px;}
 
 .div-sub-head {
   margin: 20px 0;

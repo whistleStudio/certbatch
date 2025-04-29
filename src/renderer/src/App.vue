@@ -17,9 +17,10 @@
     <template #suffix><span class="sp-file-open" @click="spOpenFileClick('font')">🗁</span></template>
   </a-input>
   <div class="div-sub-head">
-    表单：<a-input class="ip-url" v-model:value="worksheetName" placeholder="填写表单名称" />
+    表单： <a-select v-model:value="worksheetName" size="middle" placeholder="请选择表单" :style="{width: '200px'}" :options="sheetNameOpts"></a-select>
     从第<a-input class="ip-mid" v-model:value="row1" />行
     到第<a-input class="ip-mid" v-model:value="row2" />行
+    <span class="sp-desc">ℹ️默认设置: 字体微软雅黑Light, 黑色;  生成文件以时间戳命名</span>
   </div>
 
   <ul class="ul-sub">
@@ -48,14 +49,11 @@
   <hr>
   <div style="margin-top: 20px;">
     <a-button class="btn-cfg" type="primary" @click="btnCfgOpenClick" :loading="solveSta==1">导入配置</a-button>
-    <a-input  class="ip-url" v-model:value="ipCfgOpenUrl" placeholder="填写导入路径(~/cfg1.json)">
-      <template #suffix><span class="sp-file-open" @click="spOpenFileClick('cfgopen')">🗁</span></template>
-    </a-input>&nbsp;&nbsp;
     <a-button class="btn-cfg" type="primary" @click="btnCfgSaveClick" :loading="solveSta==1">保存配置</a-button>
-    <a-input class="ip-url" v-model:value="ipCfgSaveUrl" placeholder="填写保存路径(~/cfg2.json)">
-      <template #suffix><span class="sp-file-open" @click="spOpenFileClick('cfgsave')">🗁</span></template>
-    </a-input>
   </div>
+
+  <div class="app-info">小汪套打v{{ packageVersion }}</div>
+  <img class="cartoon" src="./assets/images/cartoon.png" alt="" @click="imgCartoonClick" />
 </template>
 
 <script setup>
@@ -63,16 +61,18 @@
 
 // const ipcHandle = () => window.electron.ipcRenderer.send('ping')
 
-import { reactive, ref } from "vue"
+import { reactive, ref, watch } from "vue"
 
-const ipImgUrl = ref(""), 
-ipExcelUrl = ref(""), 
-ipFontUrl = ref(""),
+const packageVersion = window.package.version
+
+const ipImgUrl = ref(""), ipExcelUrl = ref(""), ipFontUrl = ref(""),
 worksheetName = ref(""), outUrl = ref(""), row1 = ref(0), row2 = ref(0), solveSta = ref(0),
 ipCfgOpenUrl = ref(""), ipCfgSaveUrl = ref("")
 
+let sheetNameOpts = reactive([]) // 表单名称列表
+
 const subList = reactive([
-  {checked: false, col: "A", x: 0, y: 0, fz: 50, smfz: 30, flimit: 11, color: "black", fnamechecked: true},
+  {checked: true, col: "A", x: 0, y: 0, fz: 50, smfz: 30, flimit: 11, color: "black", fnamechecked: true},
   {checked: false, col: "A", x: 0, y: 0, fz: 50, smfz: 30, flimit: 11, color: "black", fnamechecked: true},
   {checked: false, col: "A", x: 0, y: 0, fz: 50, smfz: 30, flimit: 11, color: "black", fnamechecked: false},
   {checked: false, col: "A", x: 0, y: 0, fz: 50, smfz: 30, flimit: 11, color: "black", fnamechecked: false},
@@ -85,35 +85,45 @@ const alertInfo = reactive({
 })
 
 /* 🗁打开文件夹 */
-function spOpenFileClick(params) {
-  window.electron.ipcRenderer.invoke('r:openFile', params)
-  .then((res) => {
-    if (res) {
-      switch (params) {
-        case "img":
-          ipImgUrl.value = res
-          break
-        case "excel":
-          ipExcelUrl.value = res
-          break
-        case "font":
-          ipFontUrl.value = res
-          break
-        case "out":
-          outUrl.value = res
-          break
-        case "cfgopen":
-          ipCfgOpenUrl.value = res
-          break
-        case "cfgsave":
-          ipCfgSaveUrl.value = res
-          break
-      }
+async function spOpenFileClick(params) {
+  const res = await window.electron.ipcRenderer.invoke('r:openFileDialog', params)
+  if (res) {
+    if (res.errMsg) changeAlertInfo(res.errMsg, "warning")
+    switch (params) {
+      case "img":
+        ipImgUrl.value = res.fileUrl
+        break
+      case "excel":
+        ipExcelUrl.value = res.fileUrl
+        upDateSheetNameOpts(res.fileUrl, undefined)
+        break
+      case "font":
+        ipFontUrl.value = res.fileUrl
+        break
+      case "out":
+        outUrl.value = res.fileUrl
+        break
+      case "cfgopen":
+        ipCfgOpenUrl.value = res.fileUrl
+        break
+      case "cfgsave":
+        ipCfgSaveUrl.value = res.fileUrl
+        break
     }
-  })
+  }
+
 }
 
+/* 批量生成 */
 async function btnBatchClick () {
+  if (!ipImgUrl.value || !ipExcelUrl.value || !ipFontUrl.value || !outUrl.value) {
+    changeAlertInfo("路径不能为空", "warning")
+    return
+  }
+  if (!worksheetName.value) {
+    changeAlertInfo("表单不能为空", "warning")
+    return
+  }
   switch (solveSta.value) {
     case 0:
       let payload
@@ -125,7 +135,7 @@ async function btnBatchClick () {
       } catch (e) {console.log(e);changeAlertInfo("数据填写异常", "error");break}
       solveSta.value = 1
       var res = await window.electron.ipcRenderer.invoke('r:batch', payload)
-      if (res) changeAlertInfo(`表单${res[0]}处理完成, 共生成${res[1]}张图片, 用时${res[2]}s`, "success")
+      if (res) changeAlertInfo(`表单${res[0]}处理完成, 共生成${res[1]}张图片, 用时${res[2]}s`, "success", 1500)
       else changeAlertInfo("批处理异常", "error")
       console.log("res", res)
       solveSta.value = 0
@@ -139,24 +149,18 @@ async function btnBatchClick () {
   }
 }
 
-/* 消息提示 */
-let timer_alert = 0
-function changeAlertInfo(msg="", tp="info", isShow=true) {
-  clearTimeout(timer_alert)
-  console.log("changeAlertInfo")
-  if (isShow) {
-    alertInfo.isShow = true; alertInfo.msg = msg; alertInfo.tp = tp;
-    setTimeout(() => {alertInfo.isShow=false}, 1000)
-  } else alertInfo.isShow = false
-}
-
 /* 导入配置 */
 async function btnCfgOpenClick () {
+  await spOpenFileClick('cfgopen')
+  if (!ipCfgOpenUrl.value) return
   const res = await window.electron.ipcRenderer.invoke('r:cfgOpen', solveUrl(ipCfgOpenUrl.value))
   if (res) {
     const cfg = JSON.parse(res)
     ipImgUrl.value = cfg.ipImgUrl; ipExcelUrl.value = cfg.ipExcelUrl; ipFontUrl.value = cfg.ipFontUrl;
-    worksheetName.value = cfg.worksheetName; row1.value = cfg.row1; row2.value = cfg.row2;
+    row1.value = cfg.row1; row2.value = cfg.row2;
+    sheetNameOpts = [], worksheetName.value = ""
+    // 如果表格路径存在，则更新表单名称列表
+    if (cfg.ipExcelUrl) upDateSheetNameOpts(cfg.ipExcelUrl, cfg.worksheetName)
     subList.forEach((v, i) => {
       for (const key in v) {
         if (v.hasOwnProperty(key) && cfg.subList[i].hasOwnProperty(key)) {
@@ -164,13 +168,15 @@ async function btnCfgOpenClick () {
         }
       }
     })
-    changeAlertInfo("保存成功", "success")
+    changeAlertInfo("导入成功", "success")
   }
   else changeAlertInfo("导入失败", "error")
 }
 
 /* 保存配置 */
 async function btnCfgSaveClick () {
+  await spOpenFileClick('cfgsave')
+  if (!ipCfgSaveUrl.value) return
   const cfg = {
     ipImgUrl: ipImgUrl.value, ipExcelUrl: ipExcelUrl.value, ipFontUrl: ipFontUrl.value, 
     worksheetName: worksheetName.value, row1: row1.value, row2: row2.value,
@@ -181,15 +187,45 @@ async function btnCfgSaveClick () {
   else changeAlertInfo("保存失败", "error")
 }
 
+/* 打开文件夹&导入配置 - 更新表单选项 */
+async function upDateSheetNameOpts (excelUrl, sheetName) {
+  const res = await window.electron.ipcRenderer.invoke("r:updateSheetName", solveUrl(excelUrl))
+  if (res.errMsg) changeAlertInfo(res.errMsg, "warning")
+  sheetNameOpts = res.sheetNameOpts.map((v) => ({value: v}))
+  if (sheetNameOpts.length) {
+    if (!(sheetName || sheetName?.indexOf(res.sheetNameOpts)>-1)) worksheetName.value = res.sheetNameOpts[0]
+    else worksheetName.value = sheetName
+  } else { worksheetName.value = "" }
+}
+
+/* 消息提示 */
+let timer_alert = 0
+function changeAlertInfo(msg="", tp="info", delay=1000, isShow=true) {
+  clearTimeout(timer_alert)
+  console.log("changeAlertInfo")
+  if (isShow) {
+    alertInfo.isShow = true; alertInfo.msg = msg; alertInfo.tp = tp;
+    setTimeout(() => {alertInfo.isShow=false}, delay)
+  } else alertInfo.isShow = false
+}
 
 // "C:\Users\whistle\Desktop\2024-2025青少年人工智能竞赛-智能机器人项目获奖名单（宿迁、常州、无锡、南京、泰州市赛）.xlsx"
 // 处理左右"及\
 function solveUrl (url) {return url.replace(/\"/g, "").replace(/\\/g, "\/").trim()}
 
-// const ipImgUrl = ref("C:/Users/whistle/Desktop/微信图片_20250424105922.png"), 
-// ipExcelUrl = ref("C:/Users/whistle/Desktop/2024-2025青少年人工智能竞赛-智能机器人项目获奖名单（宿迁、常州、无锡、南京、泰州市赛）.xlsx"), 
-// ipFontUrl = ref("C:/Users/whistle/Desktop/ttt/font/msyhl.ttc"),
-// worksheetName = ref("选手小低-2238"), outUrl = ref("C:/Users/whistle/Desktop/ttt"), row1 = ref(5), row2 = ref(10), solveSta = ref(0)
+// 网页跳转
+function imgCartoonClick () {
+  window.electron.ipcRenderer.send("r:openHomepage", "https://whistlestudio.cn/#/home")
+}
+
+
+watch(subList, (newVal) => {
+  console.log("newVal", newVal)
+  if (!subList[0].checked) {
+    changeAlertInfo("请至少勾选一行编辑项", "warning")
+    setTimeout(() => subList[0].checked = true, 150)
+  }
+})
 
 
 </script>
@@ -223,6 +259,11 @@ function solveUrl (url) {return url.replace(/\"/g, "").replace(/\\/g, "\/").trim
 
 .div-sub-head {
   margin: 20px 0;
+  .sp-desc {
+    margin-left: 30px;
+    font-size: 14px;
+    color: #999;
+  }
 }
 
 .ul-sub {
@@ -241,5 +282,19 @@ function solveUrl (url) {return url.replace(/\"/g, "").replace(/\\/g, "\/").trim
   &:hover {
     background-color: #88c722 !important;
   }
+}
+.app-info {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  font-size: 17px;
+  color: #999;
+}
+.cartoon {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 130px;
+  cursor: pointer;
 }
 </style>

@@ -6,4 +6,4 @@ function b () {
  var a = 4
 }
 b()
-console.log(parseInt("   "))
+console.log(String(2%100).padStart(3, '0'))

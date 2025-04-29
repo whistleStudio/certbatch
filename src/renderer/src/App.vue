@@ -4,11 +4,11 @@
 <template>
   <a-alert class="alert" :message="alertInfo.msg" :type="alertInfo.tp" show-icon v-if="alertInfo.isShow"/>
 
-  <span>图片路径： </span>
+  <span class="sp-required">*</span>图片路径： 
   <a-input class="ip-url" v-model:value="ipImgUrl" placeholder="填写图片路径(~/tupian.png)">
     <template #suffix><span class="sp-file-open" @click="spOpenFileClick('img')">🗁</span></template>
   </a-input>
-  <span>表格路径： </span>
+  <span class="sp-required">*</span>表格路径： 
   <a-input class="ip-url" v-model:value="ipExcelUrl" placeholder="填写表格路径(~/biaoge.xlsx)">
     <template #suffix><span class="sp-file-open" @click="spOpenFileClick('excel')">🗁</span></template>
   </a-input>  
@@ -38,7 +38,7 @@
   </ul>
 
   <div>
-    输出文件夹路径: 
+    <span class="sp-required">*</span>输出文件夹路径: 
     <a-input class="ip-url" v-model:value="outUrl" placeholder="填写输出路径">
       <template #suffix><span class="sp-file-open" @click="spOpenFileClick('out')">🗁</span></template>
     </a-input>
@@ -116,8 +116,8 @@ async function spOpenFileClick(params) {
 
 /* 批量生成 */
 async function btnBatchClick () {
-  if (!ipImgUrl.value || !ipExcelUrl.value || !ipFontUrl.value || !outUrl.value) {
-    changeAlertInfo("路径不能为空", "warning")
+  if (!ipImgUrl.value || !ipExcelUrl.value || !outUrl.value) {
+    changeAlertInfo("图片、表格、输出文件夹路径不能为空", "warning", 1200)
     return
   }
   if (!worksheetName.value) {
@@ -130,7 +130,7 @@ async function btnBatchClick () {
       try {
         payload = JSON.stringify({
           imgUrl: solveUrl(ipImgUrl.value), excelUrl: solveUrl(ipExcelUrl.value), fontUrl: solveUrl(ipFontUrl.value), outUrl: solveUrl(outUrl.value),
-          worksheetName: worksheetName.value, row1: parseInt(row1.value), row2: parseInt(row2.value), subList
+          worksheetName: worksheetName.value, row1: row1.value+'', row2: row2.value+'', subList
         })
       } catch (e) {console.log(e);changeAlertInfo("数据填写异常", "error");break}
       solveSta.value = 1
@@ -157,7 +157,7 @@ async function btnCfgOpenClick () {
   if (res) {
     const cfg = JSON.parse(res)
     ipImgUrl.value = cfg.ipImgUrl; ipExcelUrl.value = cfg.ipExcelUrl; ipFontUrl.value = cfg.ipFontUrl;
-    row1.value = cfg.row1; row2.value = cfg.row2;
+    row1.value = cfg.row1; row2.value = cfg.row2; outUrl.value = ""
     sheetNameOpts = [], worksheetName.value = ""
     // 如果表格路径存在，则更新表单名称列表
     if (cfg.ipExcelUrl) upDateSheetNameOpts(cfg.ipExcelUrl, cfg.worksheetName)
@@ -296,5 +296,11 @@ watch(subList, (newVal) => {
   right: 20px;
   width: 130px;
   cursor: pointer;
+}
+.sp-required {
+  color: rgb(230, 104, 20);
+  font-size: 14px;
+  font-weight: bold;
+  margin-right: 3px;
 }
 </style>

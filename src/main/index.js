@@ -172,11 +172,12 @@ app.whenReady().then(() => {
   /* 批量处理：提取表单，生成图片 */
   function solveSheet (workbook, payload) {
     console.log(solveSheet)
-    const {imgUrl, excelUrl, fontUrl, worksheetName, outUrl, row1, row2, subList} = payload
+    let {imgUrl, excelUrl, fontUrl, worksheetName, outUrl, row1, row2, subList} = payload
     const worksheet = workbook.getWorksheet(worksheetName)
     if (!worksheet) {console.log("no sheet");return}
     // 遍历每一行
     let picCount = 0
+    row1 = safeParseInt(row1); row2 = safeParseInt(row2)
     for (let i = row1; i <= row2; i++) {
       console.log(isWork)
       if (isWork) {
@@ -209,7 +210,8 @@ app.whenReady().then(() => {
           if (outFileName) {onePic.write(`${outUrl}/${outFileName}.jpg`, function(err) {if(err)console.log(err)})} 
           else {            
             const timestamp = new Date().toISOString().replace(/[-:.]/g, '').slice(0, 15);
-            onePic.write(`${outUrl}/${timestamp}.jpg`, function(err) {if(err)console.log(err)});
+            const sequence = String(picCount%100).padStart(3, '0');
+            onePic.write(`${outUrl}/${timestamp}_${sequence}.jpg`, function(err) {if(err)console.log(err)});
           }
           picCount++;
         }

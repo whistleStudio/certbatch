@@ -48,7 +48,7 @@ function createWindow() {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // Set app user model id for windows
-  electronApp.setAppUserModelId('com.electron')
+  electronApp.setAppUserModelId('com.whistlestudio.certbatch')
 
   console.log("你好")
   // Default open or close DevTools by F12 in development

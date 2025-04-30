@@ -18,6 +18,7 @@
   </a-input>
   <div class="div-sub-head">
     表单： <a-select v-model:value="worksheetName" size="middle" placeholder="请选择表单" :style="{width: '200px'}" :options="sheetNameOpts"></a-select>
+    <span class="sp-update-sheetname" @click="upDateSheetNameOpts(ipExcelUrl, undefined)">🔄</span>
     从第<a-input class="ip-mid" v-model:value="row1" />行
     到第<a-input class="ip-mid" v-model:value="row2" />行
     <span class="sp-desc">ℹ️默认设置: 字体微软雅黑Light, 黑色;  生成文件以时间戳命名</span>
@@ -33,21 +34,19 @@
       小字号:<a-input class="ip-mid" v-model:value="v.smfz" :disabled="!v.checked"/>,&nbsp;
       字数阈值:<a-input class="ip-short" v-model:value="v.flimit" :disabled="!v.checked"/>,&nbsp;
       颜色:<a-input class="ip-mid" v-model:value="v.color" placeholder="" :disabled="!v.checked"/>,&nbsp;
-      文件名是否包含: <a-checkbox v-model:checked="v.fnamechecked" :disabled="!v.checked">&nbsp;&nbsp;</a-checkbox>
+      加粗:<a-checkbox class="cb" v-model:checked="v.bold" :disabled="!v.checked">,&nbsp;&nbsp;</a-checkbox>
+      文件名是否包含: <a-checkbox class="cb" v-model:checked="v.fnamechecked" :disabled="!v.checked">&nbsp;&nbsp;</a-checkbox>
     </li>
   </ul>
 
+  <!-- <div class="div-add">+</div> -->
+
   <div>
     <span class="sp-required">*</span>输出文件夹路径: 
-    <a-input class="ip-url" v-model:value="outUrl" placeholder="填写输出路径">
+    <a-input class="ip-url" v-model:value="outUrl" placeholder="填写输出路径" style="margin-right: 10px;">
       <template #suffix><span class="sp-file-open" @click="spOpenFileClick('out')">🗁</span></template>
     </a-input>
-  </div>
-
-  <a-button class="btn-batch" type="primary" @click="btnBatchClick" :loading="solveSta==1">批量处理</a-button>
-
-  <hr>
-  <div style="margin-top: 20px;">
+    <a-button class="btn-batch" type="primary" @click="btnBatchClick" :loading="solveSta==1">批量处理</a-button>
     <a-button class="btn-cfg" type="primary" @click="btnCfgOpenClick" :loading="solveSta==1">导入配置</a-button>
     <a-button class="btn-cfg" type="primary" @click="btnCfgSaveClick" :loading="solveSta==1">保存配置</a-button>
   </div>
@@ -72,11 +71,12 @@ ipCfgOpenUrl = ref(""), ipCfgSaveUrl = ref("")
 let sheetNameOpts = reactive([]) // 表单名称列表
 
 const subList = reactive([
-  {checked: true, col: "A", x: 0, y: 0, fz: 50, smfz: 30, flimit: 11, color: "black", fnamechecked: true},
-  {checked: false, col: "A", x: 0, y: 0, fz: 50, smfz: 30, flimit: 11, color: "black", fnamechecked: true},
-  {checked: false, col: "A", x: 0, y: 0, fz: 50, smfz: 30, flimit: 11, color: "black", fnamechecked: false},
-  {checked: false, col: "A", x: 0, y: 0, fz: 50, smfz: 30, flimit: 11, color: "black", fnamechecked: false},
-  {checked: false, col: "A", x: 0, y: 0, fz: 50, smfz: 30, flimit: 11, color: "black", fnamechecked: false}
+  {checked: true,  col: "A", x: 0, y: 0, fz: 50, smfz: 30, flimit: 11, color: "black", bold: true, fnamechecked: true},
+  {checked: false, col: "A", x: 0, y: 0, fz: 50, smfz: 30, flimit: 11, color: "black", bold: false, fnamechecked: false},
+  {checked: false, col: "A", x: 0, y: 0, fz: 50, smfz: 30, flimit: 11, color: "black", bold: false, fnamechecked: false},
+  {checked: false, col: "A", x: 0, y: 0, fz: 50, smfz: 30, flimit: 11, color: "black", bold: false, fnamechecked: false},
+  {checked: false, col: "A", x: 0, y: 0, fz: 50, smfz: 30, flimit: 11, color: "black", bold: false, fnamechecked: false},
+  {checked: false, col: "A", x: 0, y: 0, fz: 50, smfz: 30, flimit: 11, color: "black", bold: false, fnamechecked: false}
 ])
 const alertInfo = reactive({
   isShow: false,
@@ -163,7 +163,7 @@ async function btnCfgOpenClick () {
     if (cfg.ipExcelUrl) upDateSheetNameOpts(cfg.ipExcelUrl, cfg.worksheetName)
     subList.forEach((v, i) => {
       for (const key in v) {
-        if (v.hasOwnProperty(key) && cfg.subList[i].hasOwnProperty(key)) {
+        if (cfg.subList[i] && cfg.subList[i].hasOwnProperty(key)) {
           v[key] = cfg.subList[i][key]
         }
       }
@@ -259,22 +259,60 @@ watch(subList, (newVal) => {
 
 .div-sub-head {
   margin: 20px 0;
+  .sp-update-sheetname {
+    cursor: pointer;
+    margin: 0 20px 0 5px;
+    font-size: 17px;
+  }
   .sp-desc {
-    margin-left: 30px;
+    margin-left: 50px;
     font-size: 14px;
     color: #999;
   }
+
 }
 
 .ul-sub {
+  height: 320px;
+  overflow: auto;
   li {
     margin-bottom: 20px;
+    .cb {
+      .ant-checkbox-checked .ant-checkbox-inner  {
+        background-color: skyblue ;
+        border-color: skyblue ;
+      }
+      .ant-checkbox-disabled {
+        .ant-checkbox-inner {
+          background-color: #eee;
+          border-color: #eee;
+        }
+        .ant-checkbox-inner::after {
+          border-right-color: #cacaca;
+        }
+      } 
+    }
+
+  }
+}
+.div-add {
+  width: 100%;
+  font: 14px/17px sans-serif ;
+  // margin-left: 300px;
+  text-align: center;
+  border: 1px dashed #999;
+  color: #999;
+  border-radius: 5px;
+  cursor: pointer;
+  &:hover {
+    color: white;
+    background-color: #999;
+    border: 1px solid #888 !important;
   }
 }
 
 .btn-batch {
-  margin-top: 30px;
-  margin-bottom: 20px;
+  margin: 30px 20px 20px 0;
 }
 .btn-cfg {
   background-color: #71a71c;

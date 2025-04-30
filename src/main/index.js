@@ -83,13 +83,6 @@ app.whenReady().then(() => {
           ]
         }
         break
-      // case "cfgsave":
-      //   options = {
-      //     title: "选择文件",
-      //     properties: ["saveFile"],
-      //     filters: [opt[params], { name: 'All Files', extensions: ['*'] }]
-      //   }
-      //   break
       default:
         options = {
           title: "选择文件",
@@ -98,17 +91,7 @@ app.whenReady().then(() => {
         }
         break
     }
-    // const options = params === "out" ? {
-    //   title: "选择输出目录",
-    //   properties: ["openDirectory"],
-    //   filters: [
-    //   { name: '输出目录', extensions: ['*'] }
-    //   ]
-    // } : {
-    //   title: "选择文件",
-    //   properties: ["openFile",],
-    //   filters: [opt[params], { name: 'All Files', extensions: ['*'] }]
-    // }
+
     if (params === "cfgsave") {
       var result = await dialog.showSaveDialog(options)
     } else var result = await dialog.showOpenDialog(options)
@@ -196,7 +179,8 @@ app.whenReady().then(() => {
             if (perCellVal != undefined) {
               let addText = perCellVal+"", curFz = addText.length<=v.flimit ? v.fz: v.smfz, 
               curColor = v.color ? v.color : "black", curFontUrl = v.fontUrl ? v.fontUrl : defaultFontUrl
-              onePic.stroke(curColor).fill(curColor).font(curFontUrl, curFz)
+              if (v.bold) onePic.stroke(curColor)
+              onePic.fill(curColor).font(curFontUrl, curFz)
               .drawText(v.x-curFz*addText.length/2, v.y+curFz/2, addText)
               if (v.fnamechecked) {
                 if (outFileName) outFileName+=`_${addText}`

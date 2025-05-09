@@ -8,7 +8,7 @@ const gm = require('gm').subClass({ imageMagick: '7+' });
 const Excel = require('exceljs');
 const fs = require('fs');
 
-console.log(defaultFontUrl)
+// console.log(defaultFontUrl)
 
 function createWindow() {
   // Create the browser window.
@@ -60,18 +60,17 @@ app.whenReady().then(() => {
   ipcMain.on('ping', () => console.log('pong'))
   ipcMain.on("r:openHomepage", (_, url) => shell.openExternal(url))
 
-  ipcMain.handle('r:test', async () => {
-    console.log("r:test")
-    let e1, e2
-    try {
-      fs.accessSync(defaultFontUrl)
-    } catch (e) {e1=e}
-    try {
-      fs.accessSync(icon)
-    }catch (e) {e2=e}
-    return `defaultUrl: ${defaultFontUrl}\n ${defaultFontUrl.split('\\').splice(-4)}\n main: ${__dirname}\naccessFont:${e1}\naccessIcon:${e2}`
-    // return `defaultUrl`
-  })
+  // ipcMain.handle('r:test', async () => {
+  //   console.log("r:test")
+  //   let e1, e2
+  //   try {
+  //     fs.accessSync(defaultFontUrl)
+  //   } catch (e) {e1=e}
+  //   try {
+  //     fs.accessSync(icon)
+  //   }catch (e) {e2=e}
+  //   return `defaultUrl: ${defaultFontUrl}\n ${defaultFontUrl.split('\\').splice(-4)}\n main: ${__dirname}\naccessFont:${e1}\naccessIcon:${e2}`
+  // })
 
   /* 选择文件 */
   ipcMain.handle("r:openFileDialog", async (_, params) => {

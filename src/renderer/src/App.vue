@@ -50,7 +50,7 @@
     <a-button class="btn-cfg" type="primary" @click="btnCfgOpenClick" :loading="solveSta==1">导入配置</a-button>
     <a-button class="btn-cfg" type="primary" @click="btnCfgSaveClick" :loading="solveSta==1">保存配置</a-button>
   </div>
-  <button @click="testClick"> test</button>
+  <!-- <button @click="testClick"> test</button> -->
 
   <div class="app-info">小汪套打v{{ packageVersion }}</div>
   <img class="cartoon" src="./assets/images/cartoon.png" alt="" @click="imgCartoonClick" />
@@ -63,10 +63,10 @@
 
 import { reactive, ref, watch } from "vue"
 
-async function testClick () {
-  let res = await window.electron.ipcRenderer.invoke('r:test')
-  alert( `\nres:${res}`)
-}
+// async function testClick () {
+//   let res = await window.electron.ipcRenderer.invoke('r:test')
+//   alert( `\nres:${res}`)
+// }
 
 const packageVersion = window.package.version
 
@@ -232,8 +232,6 @@ watch(subList, (newVal) => {
     setTimeout(() => subList[0].checked = true, 150)
   }
 })
-
-
 </script>
 
 <style lang="scss">

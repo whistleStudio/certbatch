@@ -167,7 +167,7 @@ app.whenReady().then(() => {
         console.log(i)
         const perRow = worksheet.getRow(i)
         const perRowVal = perRow.values
-        const onePic = gm(imgUrl)
+        let onePic = gm(imgUrl)
         let outFileName = "", noCellEmpty = true
         // 提取每行中勾选的每列数据生成一张图片
         for (let v of subList) {
@@ -179,9 +179,9 @@ app.whenReady().then(() => {
             if (perCellVal != undefined) {
               let addText = perCellVal+"", curFz = addText.length<=v.flimit ? v.fz: v.smfz, 
               curColor = v.color ? v.color : "black", curFontUrl = v.fontUrl ? v.fontUrl : defaultFontUrl
-              if (v.bold) onePic.stroke(curColor)
-              onePic.fill(curColor).font(curFontUrl, curFz)
-              .drawText(v.x-curFz*addText.length/2, v.y+curFz/2, addText)
+              console.log(perCellVal,"---", curColor, v.bold)
+              if (v.bold) onePic.fill(curColor).stroke(curColor).font(curFontUrl, curFz).drawText(v.x-curFz*addText.length/2, v.y+curFz/2, addText)
+              else onePic.fill(curColor).stroke('transparent').font(curFontUrl, curFz).drawText(v.x-curFz*addText.length/2, v.y+curFz/2, addText) //fill stroke必须设置颜色
               if (v.fnamechecked) {
                 if (outFileName) outFileName+=`_${addText}`
                 else outFileName+=addText

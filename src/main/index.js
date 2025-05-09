@@ -2,7 +2,7 @@ import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import defaultFontUrl from '../../resources/msyhl.ttc?asset'
+import defaultFontUrl from "../../resources/msyhl.ttc?asset&asarUnpack"
 
 const gm = require('gm').subClass({ imageMagick: '7+' });
 const Excel = require('exceljs');
@@ -51,9 +51,7 @@ app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.whistlestudio.certbatch')
 
   console.log("你好")
-  // Default open or close DevTools by F12 in development
-  // and ignore CommandOrControl + R in production.
-  // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
+
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
@@ -61,6 +59,19 @@ app.whenReady().then(() => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
   ipcMain.on("r:openHomepage", (_, url) => shell.openExternal(url))
+
+  ipcMain.handle('r:test', async () => {
+    console.log("r:test")
+    let e1, e2
+    try {
+      fs.accessSync(defaultFontUrl)
+    } catch (e) {e1=e}
+    try {
+      fs.accessSync(icon)
+    }catch (e) {e2=e}
+    return `defaultUrl: ${defaultFontUrl}\n ${defaultFontUrl.split('\\').splice(-4)}\n main: ${__dirname}\naccessFont:${e1}\naccessIcon:${e2}`
+    // return `defaultUrl`
+  })
 
   /* 选择文件 */
   ipcMain.handle("r:openFileDialog", async (_, params) => {
@@ -178,8 +189,8 @@ app.whenReady().then(() => {
             console.log(perRowVal[colIdx])
             if (perCellVal != undefined) {
               let addText = perCellVal+"", curFz = addText.length<=v.flimit ? v.fz: v.smfz, 
-              curColor = v.color ? v.color : "black", curFontUrl = v.fontUrl ? v.fontUrl : defaultFontUrl
-              console.log(perCellVal,"---", curColor, v.bold)
+              curColor = v.color ? v.color : "black", curFontUrl = fontUrl ? fontUrl : defaultFontUrl
+              // console.log(perCellVal,"---", curColor, v.bold)
               if (v.bold) onePic.fill(curColor).stroke(curColor).font(curFontUrl, curFz).drawText(v.x-curFz*addText.length/2, v.y+curFz/2, addText)
               else onePic.fill(curColor).stroke('transparent').font(curFontUrl, curFz).drawText(v.x-curFz*addText.length/2, v.y+curFz/2, addText) //fill stroke必须设置颜色
               if (v.fnamechecked) {

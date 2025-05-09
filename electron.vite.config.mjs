@@ -28,7 +28,8 @@ export default defineConfig({
         format: {
           comments: false, // 移除注释
         }
-      } : undefined
+
+      } : undefined,
     }
   },
   preload: {
